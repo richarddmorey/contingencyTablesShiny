@@ -8,4 +8,5 @@ Interactive demonstration of contingency table statistics using R and shiny
 
 ## To run in R
 
-    ct::ctRunApp()
+    library(ct)
+    ctRunApp()
