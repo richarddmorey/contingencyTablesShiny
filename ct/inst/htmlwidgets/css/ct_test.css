@@ -1,0 +1,27 @@
+
+table.ct_test_table 
+{
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+}
+
+.ct_test_table td 
+{
+  padding: 5px 10px;
+  text-align: right;
+  border: 1px solid #000;
+}
+
+.ct_test_table tbody tr:nth-child(even) 
+{
+  background: WhiteSmoke;
+}
+
+.ct_error
+{
+  background-color: orange;
+}
+
+.ct_warning
+{
+  background-color: yellow;
+}

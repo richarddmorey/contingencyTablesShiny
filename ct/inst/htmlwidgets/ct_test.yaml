@@ -1,0 +1,15 @@
+# (uncomment to add a dependency)
+ dependencies:
+  - name: jquery
+    version: 3.1.1
+    src: htmlwidgets
+    script: ./lib/jquery-3.1.1.min.js
+  - name: ct_style
+    version: 0.1
+    src: htmlwidgets
+    script: ./lib/ct_test.js
+    style: ./css/ct_test.css
+  - name: TableToJSON
+    version: 0.9.0
+    src: htmlwidgets
+    script: ./lib/jquery.tabletojson.min.js
