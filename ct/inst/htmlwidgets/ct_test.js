@@ -3,33 +3,59 @@ HTMLWidgets.widget({
   name: 'ct_test',
 
   type: 'output',
-  
+
   factory: function(el, width, height) {
 
     // TODO: define shared variables for this instance
 
     return {
-      
+
       renderValue: function(x) {
-        
+
         console.log(JSON.stringify(x));
-        
+
         var m = x.m;
         var ncol = x.ncol;
         var nrow = x.nrow;
         var table = ct_make_table(m, nrow, ncol);
-        
-        table.appendTo(el); 
-        
-        
+
+        table.appendTo(el);
+
+        $('<button/>', {
+          text: "▼",
+          "class": 'add_button add_row_button',
+          click: function (evt) { ct_test_addrow(el) }
+        }).appendTo(el);
+
+
+        $('<button/>', {
+          text: "△",
+          "class": 'del_button del_row_button',
+          click: function (evt) { ct_test_deleterow(el) }
+        }).appendTo(el);
+
+        $('<button/>', {
+          text: "▶",
+          "class": 'add_button add_col_button',
+          click: function (evt) { ct_test_addcol(el) }
+        }).appendTo(el);
+
+        $('<button/>', {
+          text: "◁",
+          "class": 'del_button del_col_button',
+          click: function (evt) { ct_test_deletecol(el) }
+        }).appendTo(el);
+
+        ct_test_checkbuttons(el);
+
         $(el).find('td').on('input', function(evt){
-          
+
           $(el).trigger("change");
-          
+
         }).attr('contenteditable','true');
-        
+
         $(el).children("table").addClass('ct_test_table');
-        
+
         $(el).on("change",
         function(evt){
             // evt.target is the button that was clicked
@@ -75,27 +101,3 @@ $.extend(ct_test_goInBinding, {
 
 Shiny.inputBindings.register(ct_test_goInBinding);
 
-/*
-var ct_test_goOutBinding = new Shiny.OutputBinding();
-
-$.extend(ct_test_goOutBinding, {
-  find: function(scope) {
-    return $(scope).find(".ct_test");
-  },
-  getId: function(el) {
-    return null;
-  },
-  renderValue: function(el, value) {
-    return null;
-  },
-  renderError: function(el, err) {
-    return null;
-  },
-  clearError: function(el) {
-    return null;
-  }
-});
-
-Shiny.outputBindings.register(ct_test_goOutBinding);
-
-*/
