@@ -1,0 +1,33 @@
+---
+title: "Untitled"
+author: "Richard D. Morey"
+date: "14/11/2016"
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source('settings.R')
+require('psych')
+
+df = as.integer( (nrow(m) - 1L) * (ncol(m) - 1L) )
+
+contcor = contcor & (df==1)  
+```
+
+
+```{r echo=FALSE, warning=FALSE}
+z = chisq.test(m, correct = contcor)
+
+X2 = z$statistic
+pval = z$p.value
+
+```
+
+```{r echo=FALSE,eval=(df==1),child="child_corrs_2x2.Rmd"}
+```
+
+```{r echo=FALSE,eval=(df!=1),child="child_corrs_rxc.Rmd"}
+```
+
+

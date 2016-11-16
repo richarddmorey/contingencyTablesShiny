@@ -1,0 +1,70 @@
+
+```{r echo=FALSE}
+require(PropCIs)
+```
+
+```{r echo=FALSE}
+or.est = function(x1, n1, x2, n2, ...){
+  or = (x1 / (n1 - x1) ) / ( x2 / (n2 - x2) )
+  se = sqrt( 1/x1 + 1/n1 + 1/x2 + 1/n2 )
+  list(or = or, se = se)
+}
+```
+
+### Difference in proportions
+
+
+#### Wald interval on difference
+
+```{r}
+ci.args2 = ci.args
+ci.args2$adjust = "Wald"
+do.call(PropCIs::wald2ci, ci.args2)
+```
+
+With Agresti and Caffo (2000) correction (adding one failure and one success):
+
+```{r}
+ci.args2 = ci.args
+ci.args2$adjust = "AC"
+do.call(PropCIs::wald2ci, ci.args2)
+```
+
+#### Score interval on difference
+
+```{r}
+do.call(PropCIs::diffscoreci, ci.args)
+```
+
+
+### Relative risk
+
+#### Score interval
+
+```{r}
+do.call(PropCIs::riskscoreci, ci.args)
+```
+
+
+### Odds ratio
+
+```{r}
+OR = do.call(or.est, ci.args)
+```
+\[
+\begin{eqnarray}
+\hat{OR} &=& \left.\frac{x_1}{n_1 - x_1}\middle/\frac{x_2}{n_2 - x_2}\right.\\
+&=& \left.\frac{`r ci.args$x1`}{`r ci.args$n1 - ci.args$x1`}\middle/\frac{`r ci.args$x2`}{`r ci.args$n2 - ci.args$x2`}\right.\\
+&=& `r round(OR$or, 3)`
+\end{eqnarray}
+\]
+
+#### Score interval
+
+
+```{r}
+do.call(PropCIs::orscoreci, ci.args)
+```
+
+This score interval was computed using the `orscoreci` function in the `PropCIs` R package ([CRAN](https://cran.r-project.org/web/packages/PropCIs)).
+

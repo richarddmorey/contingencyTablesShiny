@@ -31,8 +31,119 @@ shinyServer(function(input, output) {
   })
 
   output$calcText <- renderUI({
-    return("Hi.")
+
+    my.env = new.env()
+
+    json = input$matrix
+    mat = as.matrix(jsonlite::fromJSON(json)[["m"]])
+
+    x = as.integer(mat)
+    dim(x) = dim(mat)
+
+    my.env$m = x
+    my.env$contcor = input$contcor
+
+    tf = tempfile(fileext = "html")
+    res = rmarkdown::render("calculations.Rmd",
+                      output_file = tf,
+                      envir = my.env)
+
+    return(withMathJax(includeHTML(res)))
+
   })
+
+  output$pvalText <- renderUI({
+
+    my.env = new.env()
+
+    json = input$matrix
+    mat = as.matrix(jsonlite::fromJSON(json)[["m"]])
+
+    x = as.integer(mat)
+    dim(x) = dim(mat)
+
+    my.env$m = x
+    my.env$contcor = input$contcor
+
+    tf = tempfile(fileext = "html")
+    res = rmarkdown::render("pval.Rmd",
+                            output_file = tf,
+                            envir = my.env)
+
+    return(withMathJax(includeHTML(res)))
+
+  })
+
+  output$correlText <- renderUI({
+
+    my.env = new.env()
+
+    json = input$matrix
+    mat = as.matrix(jsonlite::fromJSON(json)[["m"]])
+
+    x = as.integer(mat)
+    dim(x) = dim(mat)
+
+    my.env$m = x
+    my.env$contcor = input$contcor
+
+    tf = tempfile(fileext = "html")
+    res = rmarkdown::render("corrs.Rmd",
+                            output_file = tf,
+                            envir = my.env)
+
+    return(withMathJax(includeHTML(res)))
+
+  })
+
+  output$ESText <- renderUI({
+
+    my.env = new.env()
+
+    json = input$matrix
+    mat = as.matrix(jsonlite::fromJSON(json)[["m"]])
+
+    x = as.integer(mat)
+    dim(x) = dim(mat)
+
+    my.env$m = x
+    my.env$contcor = input$contcor
+    my.env$confcoef = as.numeric(input$confcoef)
+    my.env$groupby = input$groupby
+
+    tf = tempfile(fileext = "html")
+    res = rmarkdown::render("ESs.Rmd",
+                            output_file = tf,
+                            envir = my.env)
+
+    return(withMathJax(includeHTML(res)))
+
+  })
+
+  output$rcodeText <- renderUI({
+
+    my.env = new.env()
+
+    json = input$matrix
+    mat = as.matrix(jsonlite::fromJSON(json)[["m"]])
+
+    x = as.integer(mat)
+    dim(x) = dim(mat)
+
+    my.env$m = x
+    my.env$contcor = input$contcor
+    my.env$confcoef = as.numeric(input$confcoef)
+    my.env$groupby = input$groupby
+
+    tf = tempfile(fileext = "html")
+    res = rmarkdown::render("Rcode.Rmd",
+                            output_file = tf,
+                            envir = my.env)
+
+    return(withMathJax(includeHTML(res)))
+
+  })
+
 
   output$myText <- renderUI({
 

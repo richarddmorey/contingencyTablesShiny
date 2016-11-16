@@ -1,0 +1,29 @@
+
+### Computing the deviations from expectation
+
+```{r echo=FALSE}
+knitr::kable(m - z$expected, format = "html", table.attr = "class='ct_test_table'")
+
+res = abs(m - z$expected)
+```
+
+```{r echo=FALSE}
+knitr::kable(res, format = "html", table.attr = "class='ct_test_table'")
+```
+
+### Applying the continuity correction
+
+```{r echo=FALSE}
+yates = min(0.5, res)
+
+```
+
+The Yates continuity correction is to substract 0.5 from the absolute deviations in every cell, except when that would make any cell negative. In this case, that correction is simply the smallest absolute deviation. 
+
+For our matrix, Yates' correction is to substract `r yates` from the absolute deviations. The resulting matrix of absolute deviations is:
+
+```{r echo=FALSE}
+res = res - yates
+
+knitr::kable(res, format = "html", table.attr = "class='ct_test_table'")
+```

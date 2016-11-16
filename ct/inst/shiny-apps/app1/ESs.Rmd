@@ -1,0 +1,52 @@
+---
+title: "Untitled"
+author: "Richard D. Morey"
+date: "14/11/2016"
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source('settings.R')
+
+df = as.integer( (nrow(m) - 1L) * (ncol(m) - 1L) )
+
+contcor = contcor & (df==1) 
+
+if(groupby=="rows"){
+  ci.args = list(
+    x1 = m[1,1],
+    n1 = rowSums(m)[1],
+    x2 = m[2,1],
+    n2 = rowSums(m)[2],
+    conf.level = confcoef
+  ) 
+  nogroup = FALSE 
+}else if(groupby=="columns"){
+    ci.args = list(
+    x1 = m[1,1],
+    n1 = rowSums(m)[1],
+    x2 = m[1,2],
+    n2 = rowSums(m)[2],
+    conf.level = confcoef
+  ) 
+  nogroup = FALSE 
+}else{
+  nogroup = TRUE
+}
+
+zstar = -qnorm( (1 - confcoef)/2 )
+```
+
+
+```{r eval=(df!=1),results='asis',echo=FALSE}
+cat("These results are for 2x2 tables only.\n")
+```
+
+```{r eval=(nogroup & df==1),results='asis',echo=FALSE}
+cat("These effect sizes are for two independent binomial samples. Please select a margin to group by from the menu on the left.\n")
+```
+
+```{r eval = (!nogroup & df==1), child='child_CIs.Rmd'}
+```
+

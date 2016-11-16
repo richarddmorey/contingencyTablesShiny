@@ -1,0 +1,16 @@
+
+### Computing the deviations from expectation
+
+```{r echo=FALSE}
+knitr::kable(m - z$expected, format = "html", table.attr = "class='ct_test_table'")
+
+res = abs(m - z$expected)
+```
+
+```{r echo=FALSE}
+knitr::kable(res, format = "html", table.attr = "class='ct_test_table'")
+```
+
+
+(No continuity correction)
+

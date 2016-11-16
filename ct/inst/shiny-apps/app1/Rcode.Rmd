@@ -1,0 +1,45 @@
+---
+title: "Untitled"
+author: "Richard D. Morey"
+date: "14/11/2016"
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source('settings.R')
+require('psych')
+
+df = as.integer( (nrow(m) - 1L) * (ncol(m) - 1L) )
+
+contcor = contcor & (df==1)  
+```
+
+
+```{r include=FALSE}
+data.command = paste(capture.output(dump("m", file = "")),collapse ="\n")
+
+chisq.command = paste(
+"chisq.test(m, correct =",contcor,")")
+```
+
+```{r include=FALSE}
+tf = tempfile()
+
+cat(data.command, chisq.command, sep="\n\n", file = tf)
+my.env = new.env()
+try.source = try(source(file = tf, local = my.env))
+```
+
+```{r echo=FALSE, results = 'asis',warning=FALSE, error=FALSE}
+if(inherits(try.source,"try-error")){
+  cat("There was an error generating the R code.")
+}else{
+  cat(paste(
+    "<div class='knitr source'><pre>",
+    paste(readLines(tf), collapse = "\n"),
+    "</pre></div>",
+    sep="\n"))
+}
+
+```

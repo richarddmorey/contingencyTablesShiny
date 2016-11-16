@@ -1,0 +1,15 @@
+
+
+```{r}
+tc = psych::tetrachoric(m)
+
+```
+
+```{r}
+S = matrix(c(1,tc$rho,tc$rho,1),2,2)
+M = tc$tau * 0
+
+x = mvtnorm::rmvnorm(10000, M, S)
+table(x[,1]>tc$tau[1],x[,2]>tc$tau[2])/nrow(x)
+m / sum(m)
+```

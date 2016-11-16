@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+library(ct)
 
 x1 <- matrix(c(12, 5, 9, 7), ncol = 2)
 
@@ -23,6 +24,11 @@ shinyUI(fluidPage(
        checkboxInput("contcor",
                      "Continuity correction (2x2)?",
                      value = TRUE),
+       selectizeInput("confcoef",
+                     "Confidence coefficient?",
+                     choices = c(.50,.68,.90,.95,.99), selected = .95),
+       selectInput("groupby", "Group by:",
+                   choices = c("none","rows","columns"), selectize = FALSE),
        width = 3
     ),
 
@@ -36,7 +42,7 @@ shinyUI(fluidPage(
             ),
             column(width = 6,
               #uiOutput("matrix")
-              ct_test(list(m=x1), elementId = "matrix")
+              ct::ct_test(list(m=x1), elementId = "matrix")
             )
           ),
           fluidRow(
@@ -45,7 +51,11 @@ shinyUI(fluidPage(
             )
           )
         ),
-        tabPanel("Calculations", htmlOutput("calcText"))
+        tabPanel(HTML("X<sup>2</sup> statistic"), htmlOutput("calcText")),
+        tabPanel(HTML("p value"), htmlOutput("pvalText")),
+        tabPanel(HTML("Correlations"), htmlOutput("correlText")),
+        tabPanel(HTML("Other effect sizes"), htmlOutput("ESText")),
+        tabPanel(HTML("R code"), htmlOutput("rcodeText"))
       )
     )
   )

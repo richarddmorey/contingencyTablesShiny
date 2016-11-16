@@ -1,0 +1,64 @@
+---
+title: "Untitled"
+author: "Richard D. Morey"
+date: "14/11/2016"
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+df = as.integer( (nrow(m) - 1L) * (ncol(m) - 1L) )
+
+contcor = contcor & (df==1)  
+```
+
+
+```{r echo=FALSE, warning=FALSE}
+z = chisq.test(m, correct = contcor)
+```
+
+### Our matrix
+
+```{r echo=FALSE}
+knitr::kable(m, format = "html", table.attr = "class='ct_test_table'")
+```
+
+### Computing the expected entries
+
+```{r echo=FALSE}
+knitr::kable(z$expected, format = "html", table.attr = "class='ct_test_table'")
+```
+
+```{r child='child_continuity.Rmd', eval = contcor}
+```
+
+```{r child='child_no_continuity.Rmd', eval = !contcor}
+```
+
+### Standardizing the squared deviations
+
+
+```{r echo=FALSE}
+knitr::kable(res^2/z$expected, format = "html", table.attr = "class='ct_test_table'")
+
+res2 = res^2/z$expected
+
+X2 = sum(res^2/z$expected)
+```
+
+### The *X*<sup>2</sup> statistic
+
+The sum of the squared, standardized deviations from the expected values is
+\[
+\begin{eqnarray}
+X^2 &=& `r paste(round(res2,3), collapse = "+")`\\
+&=& `r round(X2, 3)`
+\end{eqnarray}
+\]
+
+Because the contingency table has `r nrow(m)` rows and `r ncol(m)` columns, the $X^2$ statistic has $(`r nrow(m)` - 1)\times (`r ncol(m)` - 1) = `r df`$ degrees of freedom. We report this as $X^2(`r df`) = `r round(X2, 3)`$.
+
+
+
+
