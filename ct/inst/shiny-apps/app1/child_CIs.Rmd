@@ -9,46 +9,137 @@ or.est = function(x1, n1, x2, n2, ...){
   se = sqrt( 1/x1 + 1/n1 + 1/x2 + 1/n2 )
   list(or = or, se = se)
 }
+
+rr.est = function(x1, n1, x2, n2, ...){
+  rr = ( x1 / n1 ) / ( x2 / n2 )
+  se = sqrt( 1/x1 + 1/n1 + 1/x2 + 1/n2 )
+  list(rr = rr, se = se)
+}
+
+dp.est = function(x1, n1, x2, n2, add = c(0,0), ...){
+  phatx = ( (x1+add[1]) / (n1 + sum(add)) )
+  phaty = ( (x2+add[1]) / (n2 + sum(add)) )
+  dp = phatx - phaty
+  se = sqrt(phatx * (1-phatx) / (n1 + sum(add)) + phaty * (1-phaty) / (n2 + sum(add)))
+  list(dp = dp, se = se)
+}
+
 ```
 
 ### Difference in proportions
 
+```{r echo=FALSE}
+DP = do.call(dp.est, ci.args)
+```
+
+If $p_d = p_1 - p_2$, we can estimate $p_d$ with
+\[
+\begin{eqnarray}
+\hat{p_d} &=& \frac{x_1}{n_1}-\frac{x_2}{n_2}\\
+&=& \frac{`r ci.args$x1`}{`r ci.args$n1`}-\frac{`r ci.args$x2`}{`r ci.args$n2`}\\
+&=& `r round(DP$dp, 3)`
+\end{eqnarray}
+\]
+
+
 
 #### Wald interval on difference
 
-```{r}
+The Wald interval uses a normal approximation to the binomial distribution. With a large enough sample and probabilities that are not too extreme,
+\[
+\frac{x_1}{n_1}\stackrel{\cdot}{\sim} \mbox{Normal}\left(p_1, \sqrt\frac{\hat{p}_1(1-\hat{p}_1)}{n_1}\right),
+\]
+and likewise for $p_2$. Assuming that the observations are independent, an estimate of the standard error of $x_1/n_1 - x_2/n_2$ is
+\[
+\sqrt{\frac{\hat{p}_1(1-\hat{p}_1)}{n_1} + \frac{\hat{p}_2(1-\hat{p}_2)}{n_2}}
+\]
+
+
+
+```{r echo=FALSE}
 ci.args2 = ci.args
 ci.args2$adjust = "Wald"
-do.call(PropCIs::wald2ci, ci.args2)
+ci = do.call(PropCIs::wald2ci, ci.args2)
 ```
 
-With Agresti and Caffo (2000) correction (adding one failure and one success):
+The Wald `r 100*confcoef`% confidence interval is 
+\[
+\begin{eqnarray}
+`r round(DP$dp, 3)`\pm `r round(zstar,3)`\times`r round(DP$se,3)`\\
+[`r round(DP$dp - zstar*DP$se,3)`,`r round(DP$dp + zstar*DP$se,3)`]
+\end{eqnarray}
+\]
 
-```{r}
+
+```{r echo=FALSE}
 ci.args2 = ci.args
 ci.args2$adjust = "AC"
-do.call(PropCIs::wald2ci, ci.args2)
+ci.args2$add = c(1,1)
+DP2 = do.call(dp.est, ci.args2)
+ci.args2$add = NULL
+ci = do.call(PropCIs::wald2ci, ci.args2)
 ```
+
+With Agresti and Caffo (2000) adjustment (adding one failure and one success). With this adjustment we estimate $p_d$ with
+\[
+\begin{eqnarray}
+\hat{p_d} &=& \frac{x_1+1}{n_1+2}-\frac{x_2+1}{n_2+2}\\
+&=& \frac{`r ci.args$x1+1`}{`r ci.args$n1+2`}-\frac{`r ci.args$x2+1`}{`r ci.args$n2+2`}\\
+&=& `r round(DP2$dp, 3)`
+\end{eqnarray}
+\]
+The standard error is similarly estimated based on the adjusted counts.
+
+The adjusted Wald `r 100*confcoef`% confidence interval is 
+\[
+\begin{eqnarray}
+`r round(DP2$dp, 3)`\pm `r round(zstar,3)`\times`r round(DP2$se,3)`\\
+[`r round(DP2$dp - zstar*DP2$se,3)`,`r round(DP2$dp + zstar*DP2$se,3)`]
+\end{eqnarray}
+\]
+
+
+The Wald and adjusted Wald intervals were computed using the `wald2ci` function in the `PropCIs` R package ([CRAN](https://cran.r-project.org/web/packages/PropCIs)).
+
+
 
 #### Score interval on difference
 
-```{r}
+```{r echo=FALSE}
 do.call(PropCIs::diffscoreci, ci.args)
 ```
+
+This score interval was computed using the `diffscoreci` function in the `PropCIs` R package ([CRAN](https://cran.r-project.org/web/packages/PropCIs)).
+
 
 
 ### Relative risk
 
+```{r echo=FALSE}
+RR = do.call(rr.est, ci.args)
+```
+\[
+\begin{eqnarray}
+\hat{RR} &=& \left.\frac{x_1}{n_1}\middle/\frac{x_2}{n_2}\right.\\
+&=& \left.\frac{`r ci.args$x1`}{`r ci.args$n1`}\middle/\frac{`r ci.args$x2`}{`r ci.args$n2`}\right.\\
+&=& `r round(RR$rr, 3)`
+\end{eqnarray}
+\]
+
+
+
 #### Score interval
 
-```{r}
+```{r echo=FALSE}
 do.call(PropCIs::riskscoreci, ci.args)
 ```
+
+This score interval was computed using the `riskscoreci` function in the `PropCIs` R package ([CRAN](https://cran.r-project.org/web/packages/PropCIs)).
 
 
 ### Odds ratio
 
-```{r}
+```{r echo=FALSE}
 OR = do.call(or.est, ci.args)
 ```
 \[
@@ -62,7 +153,7 @@ OR = do.call(or.est, ci.args)
 #### Score interval
 
 
-```{r}
+```{r echo=FALSE}
 do.call(PropCIs::orscoreci, ci.args)
 ```
 

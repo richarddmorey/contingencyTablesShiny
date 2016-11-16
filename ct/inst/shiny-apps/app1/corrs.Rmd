@@ -9,6 +9,7 @@ output: html_fragment
 knitr::opts_chunk$set(echo = TRUE)
 source('settings.R')
 require('psych')
+require('mvtnorm')
 
 df = as.integer( (nrow(m) - 1L) * (ncol(m) - 1L) )
 

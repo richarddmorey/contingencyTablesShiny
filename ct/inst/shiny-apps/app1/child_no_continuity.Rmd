@@ -1,6 +1,8 @@
 
 ### Computing the deviations from expectation
 
+Now that we have predictions when we assume that the rows and columns are independent, we can quantify the deviation from that prediction.
+
 ```{r echo=FALSE}
 knitr::kable(m - z$expected, format = "html", table.attr = "class='ct_test_table'")
 

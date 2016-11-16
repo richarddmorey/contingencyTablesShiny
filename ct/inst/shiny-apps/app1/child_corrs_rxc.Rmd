@@ -1,17 +1,110 @@
 
+### Cramér's $V$
 
-```{r}
+lsr::cramersV
+
+Cramér's $V$ correlation coefficient was computed using the `cramersV` function in the `lsr` R package ([CRAN](https://cran.r-project.org/web/packages/lsr)).
+
+### Polychoric correlation coefficient
+
+The tetrachoric correlation is computed assuming that the polytomous data in the $m\times k$ table arise from a latent bivariate normal with a mean vector $(0,0)$, marginal variances of 1, and a correlation coefficient of $\rho$. Call this bivariate observation $(z_1, z_2)$.
+
+The discrete observations are assumed to arise from these latent bivariate normal observations by means of several criteria. The total number of criteria for the rows will be $m-1$, or one fewer than the number of rows (in our case `r nrow(m)-1` criteria) --- and likewise for the columns (in our case `r ncol(m)-1`).
+
+
+```{r echo=FALSE}
+m.latex = paste("\\[",
+                paste(
+                  paste("\\frac{",as.character(m),"}{",sum(m),"}="),
+                  paste(round(m/sum(m),3))
+                ),
+                "\\]")
+dim(m.latex) = dim(m)
+knitr::kable(m.latex, format = "html", table.attr = "class='ct_test_table'")
+```
+
+```{r echo=FALSE,include=FALSE}
 tc = psych::polychoric(as.table(m))
-tc
 ```
+
 
 ```{r}
+xx <- seq(qnorm(.001), qnorm(.999), len = 100)
 S = matrix(c(1,tc$rho,tc$rho,1),2,2)
-M = tc$tau
-S
-M
-
-#x = mvtnorm::rmvnorm(10000, M, S)
-#table(x[,1]<0,x[,2]<0)/nrow(x)
-#m / sum(m)
+M = c(0,0)
+yy <- outer(xx, xx, Vectorize(function(x,y){
+  mvtnorm::dmvnorm( c(x,y), M, S)  
+},c("x","y")))
 ```
+
+
+```{r include=FALSE}
+crits.rows = c(-Inf,tc$tau.row,Inf)
+crits.cols = c(-Inf,tc$tau.col,Inf)
+b = expand.grid(row = 1:nrow(m),col = 1:ncol(m))
+b$lower.rows = crits.rows[b$row]
+b$upper.rows = crits.rows[b$row+1]
+b$lower.cols = crits.cols[b$col]
+b$upper.cols = crits.cols[b$col+1]
+probs = apply(b,1,function(v){
+  lower = c(v['lower.rows'], v['lower.cols'])
+  upper = c(v['upper.rows'], v['upper.cols'])
+  mvtnorm::pmvnorm(lower = lower, upper = upper,mean = M, sigma = S)
+})
+
+dim(probs) = dim(m)
+
+
+```
+
+There are some patterns of data that cannot be fit by the polychoric correlation coefficient, so you should check the best fitting probabilties against the observed probabilities. Here are the best fitting joint probabilities:
+
+```{r echo=FALSE}
+knitr::kable(round(probs,3), format = "html", table.attr = "class='ct_test_table'")
+```
+
+Just to check, we can perform a $\chi^2$ goodness-of-fit test assuming that the data were generated from the polychoric model (i.e. an underlying bivariate normal):
+
+```{r echo=FALSE}
+chisq.test(as.vector(m), p = as.vector(probs))
+```
+
+The $\chi^2$ goodness-of-fit test can alert us to possible cases in which the polychoric correlation coefficient does not adequately describe the relationship between two variables. However, don't take the $\chi^2$ test *too* seriously; if the test shows significant misfit, yet absolute misfit of the probabilities is small, the polychoric correlation may still be an adequate characterization of the relationship in the data.
+
+#### Graphical representations
+
+The plot below shows a representation of the best fitting polychoric correlation model. It represents a bivariate normal distribution with a correlation coefficient of $\rho=`r round(tc$rho,3)`$.
+
+```{r fig.width = 5, fig.height=5}
+contour(xx,xx,yy, asp=TRUE, ylab=expression(paste(z[2], " (columns)")),
+        xlab=expression(paste(z[1], " (rows)")))
+abline(v = tc$tau.row, col="red")
+for(i in 1:(nrow(m)-1)){
+  text(tc$tau.row[i], par()$usr[3], substitute(tau[i]^r,list(i=i)), adj = c(-.2,-.2), col="red", srt=90)
+  if((i%%2)){
+    if(i==(nrow(m)-1)){
+      rect(tc$tau.row[i],par()$usr[3],par()$usr[2],par()$usr[4],col=rgb(0,0,0,.05), border = NA)
+    }else{
+      rect(tc$tau.row[i],par()$usr[3],tc$tau.row[i+1],par()$usr[4],col=rgb(0,0,0,.05), border = NA)
+    }
+  }  
+}
+
+
+abline(h = tc$tau.col, col="red")
+for(i in 1:(ncol(m)-1)){
+  text(par()$usr[1], tc$tau.col[i], substitute(tau[i]^c,list(i=i)), adj = c(-.2,-.2), col="red")
+}
+
+text(par()$usr[1], par()$usr[3],expression(x[11]), adj=c(-0.2,-0.2),cex=2, col=rgb(0,0,0,.5))
+#text(par()$usr[2], par()$usr[4],expression(x[22]), adj=c(1.2,1.2),cex=2, col=rgb(0,0,0,.5))
+#text(par()$usr[2], par()$usr[3],expression(x[21]), adj=c(1.2,-.2),cex=2, col=rgb(0,0,0,.5))
+#text(par()$usr[1], par()$usr[4],expression(x[12]), adj=c(-.2,1.2),cex=2, col=rgb(0,0,0,.5))
+
+
+```
+
+Notice that the plot is rotated relative to the matrix, because in plots we put the origin in the lower left corner, while in contingency tables the "origin" is in the upper left. The rows are shaded as in the matrix to make this clearer.
+
+The polychoric correlation coefficient was computed using the `polychoric` function in the `psych` R package ([CRAN](https://cran.r-project.org/web/packages/psych)).
+
